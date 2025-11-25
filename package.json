@@ -1,0 +1,23 @@
+{
+  "name": "car-shop",
+  "version": "1.0.0",
+  "description": "Group Project for CSE341",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dragnum3xp/Car-Shop.git"
+  },
+  "author": "Filipe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dragnum3xp/Car-Shop/issues"
+  },
+  "homepage": "https://github.com/dragnum3xp/Car-Shop#readme",
+  "dependencies": {
+    "body-parser": "^2.2.1",
+    "express": "^5.1.0"
+  }
+}
