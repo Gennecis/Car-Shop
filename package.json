@@ -24,8 +24,10 @@
     "express": "^5.1.0",
     "mongodb": "^7.0.0",
     "nodemon": "^3.1.11",
-    "swagger": "^0.7.5",
+    "swagger": "^0.0.1",
     "swagger-autogen": "^2.23.7",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "validate": "^5.2.0",
+    "validatorjs": "^3.22.1"
   }
 }
