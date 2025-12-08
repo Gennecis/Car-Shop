@@ -1,0 +1,68 @@
+const request = require("supertest");
+const app = require("../server");      // 👈 引用 app 以便測試 API
+const { MongoClient } = require("mongodb");
+
+let connection;
+let db;
+let testUserId;
+
+beforeAll(async () => {
+  connection = await MongoClient.connect(process.env.MONGODB_URL);
+  db = connection.db("CarShop");
+});
+
+beforeEach(async () => {
+  // 在每個測試前清空 Cars collection
+  await db.collection("users").deleteMany({});
+});
+
+describe("Users API CRUD Test", () => { 
+  // createUser 
+  test("POST /users - create a new user", async () => { 
+    const response = await request(app) 
+    .post("/users") 
+    .send({ 
+      email: "test@example.com", 
+      username: "testuser", 
+      name: "Test User", 
+      ipaddress: "1.2.3.4" 
+    }); 
+    expect(response.status).toBe(204); 
+    // 抓出剛新增的 user（用 email 找） 
+    const newUser = await db.collection("users").findOne({ email: "test@example.com" }); 
+    testUserId = newUser._id.toString(); 
+    expect(newUser).toBeDefined(); 
+    expect(newUser.username).toBe("testuser"); }); 
+  // getSingle 
+  test("GET /users/:id - get a single user", async () => { 
+    const response = await request(app).get(`/users/${testUserId}`); 
+    expect(response.status).toBe(200); 
+    expect(response.body).toHaveProperty("email", "test@example.com"); 
+  }); 
+  // getAll 
+  test("GET /users - should return users list", async () => {
+      const response = await request(app).get("/users"); 
+      expect(response.status).toBe(200); 
+      expect(Array.isArray(response.body)).toBe(true); 
+  }); 
+  // updateUser 
+  test("PUT /users/:id - update user", async () => { 
+    const response = await request(app) 
+    .put(`/users/${testUserId}`) 
+    .send({ 
+      email: "updated@example.com", 
+      username: "updatedUser", 
+      name: "Updated User", 
+      ipaddress: "5.6.7.8" }); 
+      expect(response.status).toBe(204); 
+  }); 
+  // deleteUser 
+  test("DELETE /users/:id - delete user", async () => { 
+    const response = await request(app).delete(`/users/${testUserId}`); 
+    expect(response.status).toBe(204); 
+  }); 
+});
+
+afterAll(async () => {
+  await connection.close();  // 關閉資料庫連線
+});

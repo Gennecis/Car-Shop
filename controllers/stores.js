@@ -18,7 +18,6 @@ const getAll = async (req, res) => {
   }
 };
 
-
 const getSingle = async (req, res) => {
   //#swagger.tags=["Stores"]
 
@@ -56,7 +55,7 @@ const createStore = async (req, res) => {
     try{
       const response = await mongodb.getDatabase().db("CarShop").collection("store").insertOne(store);
       if (response.acknowledged > 0) {
-        res.status(204).send()
+        res.status(204).json(store)
       } 
     }catch(err) {
         res.status(500).json({
@@ -75,7 +74,8 @@ const updateStore = async (req, res) => {
     try{
       const response = await mongodb.getDatabase().db("CarShop").collection("store").replaceOne({ _id: storeId}, store);
       if (response.modifiedCount > 0) {
-        res.status(204).send()
+        const updatedStore = await mongodb.getDatabase().db("CarShop").collection("store").findOne({ _id: storeId });
+        res.status(204).json(updatedStore)
       } 
     }catch(err) {
         res.status(500).json({
@@ -85,14 +85,14 @@ const updateStore = async (req, res) => {
 
 const deleteStore = async (req, res) => {
   //#swagger.tags=["Stores"]
-    const storeId = new ObjectId(req.params.id);
-    try{
-    const response = await mongodb.getDatabase().db("CarShop").collection("store").deleteOne({ _id: storeId});
-    if (response.deletedCount > 0) {
-      res.status(204).send()
-    } 
+  const storeId = new ObjectId(req.params.id);
+  try{
+  const response = await mongodb.getDatabase().db("CarShop").collection("store").deleteOne({ _id: storeId});
+  if (response.deletedCount > 0) {
+    res.status(204).send()
+  } 
   }catch(err) {
-      res.status(500).json({
+      res.status(404).json({
       message: err.message || "Some error occurred while deleting the Store"});
   }
 };

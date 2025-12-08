@@ -1,0 +1,63 @@
+const request = require("supertest");
+const app = require("../server");      // 👈 引用 app 以便測試 API
+const { MongoClient } = require("mongodb");
+
+let connection;
+let db;
+let teststoreId;
+
+beforeAll(async () => {
+  connection = await MongoClient.connect(process.env.MONGODB_URL);
+  db = connection.db("CarShop");
+});
+
+describe("stores API CRUD Test", () => { 
+  // createStore 
+  test("POST /stores - create a new store", async () => { 
+    const response = await request(app) 
+    .post("/stores") 
+    .send({ 
+      name: "teststore", 
+      manager: "Bernie Zhong", 
+      number: "0905069891"
+    }); 
+    expect(response.status).toBe(204); 
+    // 抓出剛新增的 store（用 number 找） 
+    const newstore = await db.collection("store").findOne({ number: "0905069891" }); 
+    teststoreId = newstore._id.toString(); 
+    expect(newstore).toBeDefined(); 
+    expect(newstore.name).toBe("teststore"); }); 
+  
+  // getSingle 
+  test("GET /stores/:id - get a single store", async () => { 
+    const response = await request(app).get(`/stores/${teststoreId}`); 
+    expect(response.status).toBe(200); 
+    expect(response.body).toHaveProperty("number", "0905069891"); 
+  }); 
+  // getAll 
+  test("GET /stores - should return stores list", async () => {
+      const response = await request(app).get("/stores"); 
+      expect(response.status).toBe(200); 
+      expect(Array.isArray(response.body)).toBe(true); 
+  }); 
+  // updateStore 
+  test("PUT /stores/:id - update store", async () => { 
+    const response = await request(app) 
+    .put(`/stores/${teststoreId}`) 
+    .send({ 
+      name: "Taipei store", 
+      manager: "Yihsuan Chung", 
+      number: "0905069891",
+    }); 
+    expect(response.status).toBe(204); 
+  }); 
+  // deleteStore 
+  test("DELETE /stores/:id - delete store", async () => { 
+    const response = await request(app).delete(`/stores/${teststoreId}`); 
+    expect(response.status).toBe(204); 
+  }); 
+});
+
+afterAll(async () => {
+  await connection.close();  // 關閉資料庫連線
+});

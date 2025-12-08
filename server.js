@@ -3,6 +3,13 @@ const bodyParser = require("body-parser");
 const mongodb = require("./data/database");
 const app = express();
 
+module.exports = app; // Export app for testing
+if (require.main === module) {
+    const port = process.env.PORT || 3000;
+    app.listen(port, () => {
+        console.log(`Server is running on port: ${port}`);
+    });
+}
 
 const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
