@@ -43,10 +43,10 @@ async function createCar(req, res) {
   //#swagger.tags=["Cars"]
   const car = {
     carName: req.body.carName,
-    brand: req.body.Brand,
-    year: req.body.Year,
-    color: req.body.Color,
-    price: req.body.Price
+    brand: req.body.brand,
+    year: req.body.year,
+    color: req.body.color,
+    price: req.body.price
   };
   try {
     const response = await mongodb
@@ -71,10 +71,10 @@ async function updateCar(req, res) {
   const carId = new ObjectId(req.params.id);
   const car = {
     carName: req.body.carName,
-    brand: req.body.Brand,
-    year: req.body.Year,
-    color: req.body.Color,
-    price: req.body.Price
+    brand: req.body.brand,
+    year: req.body.year,
+    color: req.body.color,
+    price: req.body.price
   };
   try {
     const response = await mongodb

@@ -47,22 +47,31 @@ const getSingle = async (req, res) => {
 };
 
 const createUser = async (req, res) => {
-  //#swagger.tags=["Users"]
-    const user = {
-        email: req.body.email,
-        username: req.body.username,
-        name: req.body.name,
-        ipaddress: req.body.ipaddress,
-    };
-    try{
-      const response = await mongodb.getDatabase().db("CarShop").collection("users").insertOne(user);
-      if (response.acknowledged > 0) {
-        res.status(204).send()
-      } 
-    }catch(err) {
-        res.status(500).json({
-      message: err.message || "Some error occurred while creating the User"});
-      }
+  const user = {
+    email: req.body.email,
+    username: req.body.username,
+    name: req.body.name,
+    ipaddress: req.body.ipaddress,
+  };
+
+  try {
+    const response = await mongodb
+      .getDatabase()
+      .db("CarShop")
+      .collection("users")
+      .insertOne(user);
+
+    if (response.acknowledged) {
+      return res.status(201).json({ insertedId: response.insertedId });
+    }
+
+    return res.status(500).json({ message: "User creation not acknowledged." });
+
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message || "Some error occurred while creating the User"
+    });
+  }
 };
 
 const updateUser = async (req, res) => {

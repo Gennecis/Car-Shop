@@ -79,10 +79,17 @@ process.on("uncaughtException", (err, origin)=> {
   console.log(process.stderr.fd, `Caught exception: ${err}\n` + `Exception Origin: ${origin}`)
 });
 
-mongodb.initDb((err) =>{
-    if (err){
-        console.log(err)
-} else {
-    app.listen(port, () => (console.log(`Database is listening and node runing on port ${port}`)));
-}
+mongodb.initDb((err) => {
+  if (err) {
+    console.error(err);
+    return;
+  }
+
+  // ⚠ DO NOT START SERVER WHEN RUNNING TESTS
+  if (process.env.NODE_ENV !== "test") {
+    app.listen(3000, () =>
+      console.log("Database is listening and node runing on port 3000")
+    );
+  }
 });
+

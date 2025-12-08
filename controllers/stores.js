@@ -47,41 +47,57 @@ const getSingle = async (req, res) => {
 
 const createStore = async (req, res) => {
   //#swagger.tags=["Stores"]
-    const store = {
-        name: req.body.name,
-        manager: req.body.manager,
-        number: req.body.number,
-    };
-    try{
-      const response = await mongodb.getDatabase().db("CarShop").collection("store").insertOne(store);
-      if (response.acknowledged > 0) {
-        res.status(204).json(store)
-      } 
-    }catch(err) {
-        res.status(500).json({
-      message: err.message || "Some error occurred while creating the Store"});
-      }
+  const store = {
+    name: req.body.name,
+    manager: req.body.manager,
+    number: req.body.number,
+  };
+
+  try {
+    const response = await mongodb
+      .getDatabase()
+      .db("CarShop")
+      .collection("store")
+      .insertOne(store);
+
+    if (response.acknowledged) {
+      return res.status(201).json({ insertedId: response.insertedId });
+    }
+
+    return res.status(500).json({ message: "Store creation not acknowledged." });
+
+  } catch (err) {
+    return res.status(500).json({
+      message: err.message || "Some error occurred while creating the Store",
+    });
+  }
 };
 
-const updateStore = async (req, res) => {
-  //#swagger.tags=["Stores"]
-    const storeId = new ObjectId(req.params.id);
-    const store = {
-        name: req.body.name,
-        manager: req.body.manager,
-        number: req.body.number,
-    };
-    try{
-      const response = await mongodb.getDatabase().db("CarShop").collection("store").replaceOne({ _id: storeId}, store);
-      if (response.modifiedCount > 0) {
-        const updatedStore = await mongodb.getDatabase().db("CarShop").collection("store").findOne({ _id: storeId });
-        res.status(204).json(updatedStore)
-      } 
-    }catch(err) {
-        res.status(500).json({
-        message: err.message || "Some error occurred while updating the Store"});
+async function updateStore(req, res) {
+  //#swagger.tags=["Cars"]
+  if (!ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ message: "Must use a valid store id when updating." });
+  }
+  const StoreId = new ObjectId(req.params.id);
+  const store = {
+    name: req.body.name,
+    manager: req.body.manager,
+    number: req.body.number,
+  };
+  try {
+    const response = await mongodb
+      .getDatabase()
+      .db("CarShop")
+      .collection("Cars")
+      .replaceOne({ _id: StoreId }, store);
+    if (response.modifiedCount > 0) {
+      return res.status(204).send();
     }
-};
+    return res.status(404).json({ message: "Store not found or no changes applied." });
+  } catch (err) {
+    return res.status(500).json({ message: err.message || "Some error occurred while updating the Store" });
+  }
+}
 
 const deleteStore = async (req, res) => {
   //#swagger.tags=["Stores"]
@@ -91,10 +107,8 @@ const deleteStore = async (req, res) => {
   if (response.deletedCount > 0) {
     res.status(204).send()
   } 
-  }catch(err) {
-      res.status(404).json({
-      message: err.message || "Some error occurred while deleting the Store"});
+  }catch (err) {
+    res.status(500).json({ message: err.message });
   }
 };
-
 module.exports = { getAll, getSingle, createStore, updateStore, deleteStore };
