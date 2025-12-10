@@ -75,8 +75,8 @@ async function updateCar(req, res) {
     brand: req.body.brand,
     year: req.body.year,
     entryMonth: req.body.entryMonth,
-    Status: req.body.status,
-    RepairCost: req.body.repairCost
+    Status: req.body.Status,
+    RepairCost: req.body.RepairCost
   };
   try {
     const response = await mongodb

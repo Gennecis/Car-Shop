@@ -74,7 +74,7 @@ const createStore = async (req, res) => {
 };
 
 async function updateStore(req, res) {
-  //#swagger.tags=["Cars"]
+  //#swagger.tags=["Stores"]
   if (!ObjectId.isValid(req.params.id)) {
     return res.status(400).json({ message: "Must use a valid store id when updating." });
   }
@@ -101,14 +101,21 @@ async function updateStore(req, res) {
 
 const deleteStore = async (req, res) => {
   //#swagger.tags=["Stores"]
+
+  if (!ObjectId.isValid(req.params.id)) {
+    return res.status(400).json({ message: 'Must use a valid store id to delete a store.' });
+  }
+
   const storeId = new ObjectId(req.params.id);
-  try{
-  const response = await mongodb.getDatabase().db("CarShop").collection("store").deleteOne({ _id: storeId});
-  if (response.deletedCount > 0) {
-    res.status(204).send()
-  } 
-  }catch (err) {
-    res.status(500).json({ message: err.message });
+
+  try {
+    const response = await mongodb.getDatabase().db("CarShop").collection("store").deleteOne({ _id: storeId });
+    if (response.deletedCount > 0) {
+      return res.status(204).send();
+    }
+    return res.status(404).json({ message: 'Store not found.' });
+  } catch (err) {
+    return res.status(500).json({ message: err.message || "Some error occurred while deleting the Store" });
   }
 };
 module.exports = { getAll, getSingle, createStore, updateStore, deleteStore };
