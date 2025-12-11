@@ -56,4 +56,41 @@ describe("Stores API CRUD Test", () => {
     expect(Array.isArray(response.body)).toBe(true);
   });
 
+  test("PUT /stores/:id → update store", async () => {
+    const insertedStore = await db.collection("store").insertOne({
+      name: "Downtown Store",
+      manager: "John Doe",
+      number: 101
+    });
+
+    const response = await request(app)
+      .put(`/stores/${insertedStore.insertedId}`)
+      .send({
+        name: "Uptown Store",
+        manager: "Jane Smith",
+        number: 102
+      });
+
+    expect(response.status).toBe(204);
+
+    const updated = await db.collection("store").findOne({ _id: insertedStore.insertedId });
+    expect(updated.name).toBe("Uptown Store");
+    expect(updated.manager).toBe("Jane Smith");
+  });
+
+  test("DELETE /stores/:id → delete store", async () => {
+    const insertedStore = await db.collection("store").insertOne({
+      name: "Test Store",
+      manager: "Test Manager",
+      number: 999
+    });
+
+    const response = await request(app).delete(`/stores/${insertedStore.insertedId}`);
+
+    expect(response.status).toBe(204);
+
+    const deleted = await db.collection("store").findOne({ _id: insertedStore.insertedId });
+    expect(deleted).toBeNull();
+  });
+
 });

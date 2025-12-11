@@ -68,6 +68,7 @@ const saveRepair = (req, res, next) => {
     year: 'integer',
     entryMonth: 'date',
     RepairCost: 'required|integer',
+    completionDate: 'date',
   };
   validator(req.body, validationRule, {}, (err, status) => {
     if (!status) {

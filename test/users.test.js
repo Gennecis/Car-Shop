@@ -72,4 +72,43 @@ describe("Users API CRUD Test", () => {
     expect(response.body.length).toBeGreaterThan(0);
   });
 
+  test("PUT /users/:id → update user", async () => {
+    const insertedUser = await db.collection("users").insertOne({
+      email: "test@example.com",
+      username: "testuser",
+      name: "Test User",
+      ipaddress: "192.168.1.1"
+    });
+
+    const response = await request(app)
+      .put(`/users/${insertedUser.insertedId}`)
+      .send({
+        email: "updated@example.com",
+        username: "updateduser",
+        name: "Updated User",
+        ipaddress: "192.168.1.2"
+      });
+
+    expect(response.status).toBe(204);
+
+    const updated = await db.collection("users").findOne({ _id: insertedUser.insertedId });
+    expect(updated.email).toBe("updated@example.com");
+  });
+
+  test("DELETE /users/:id → delete user", async () => {
+    const insertedUser = await db.collection("users").insertOne({
+      email: "delete@example.com",
+      username: "deleteuser",
+      name: "Delete User",
+      ipaddress: "192.168.1.3"
+    });
+
+    const response = await request(app).delete(`/users/${insertedUser.insertedId}`);
+
+    expect(response.status).toBe(204);
+
+    const deleted = await db.collection("users").findOne({ _id: insertedUser.insertedId });
+    expect(deleted).toBeNull();
+  });
+
 });

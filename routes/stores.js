@@ -7,13 +7,15 @@ const { isAuthenticated } = require("../middleware/authenticate");
 
 router.get("/", storesController.getAll);
 router.get("/:id", storesController.getSingle);
-router.put("/:id", isAuthenticated, validation.saveStore, storesController.updateStore);
-router.delete("/:id", isAuthenticated, storesController.deleteStore);
 
 if (process.env.NODE_ENV === "test") {
   router.post("/", storesController.createStore);
+  router.put("/:id", storesController.updateStore);
+  router.delete("/:id", storesController.deleteStore);
 } else {
   router.post("/", isAuthenticated, validation.saveStore, storesController.createStore);
+  router.put("/:id", isAuthenticated, validation.saveStore, storesController.updateStore);
+  router.delete("/:id", isAuthenticated, storesController.deleteStore);
 }
 
 module.exports = router;

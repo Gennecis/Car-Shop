@@ -73,4 +73,53 @@ describe("Repair API CRUD Test", () => {
     expect(Array.isArray(response.body)).toBe(true);
   });
 
+  test("PUT /repair/:id → update repair", async () => {
+    const insertedRepair = await db.collection("Repair").insertOne({
+      carName: "Model X",
+      brand: "Tesla",
+      year: 2020,
+      entryMonth: "2024-01-01",
+      Status: "Pending",
+      RepairCost: 5000,
+      completionDate: "2024-02-01"
+    });
+
+    const response = await request(app)
+      .put(`/repair/${insertedRepair.insertedId}`)
+      .send({
+        carName: "Model X",
+        brand: "Tesla",
+        year: 2020,
+        entryMonth: "2024-01-01",
+        Status: "Completed",
+        RepairCost: 5500,
+        completionDate: "2024-01-15"
+      });
+
+    expect(response.status).toBe(204);
+
+    const updated = await db.collection("Repair").findOne({ _id: insertedRepair.insertedId });
+    expect(updated.Status).toBe("Completed");
+    expect(updated.RepairCost).toBe(5500);
+  });
+
+  test("DELETE /repair/:id → delete repair", async () => {
+    const insertedRepair = await db.collection("Repair").insertOne({
+      carName: "Civic",
+      brand: "Honda",
+      year: 2021,
+      entryMonth: "2024-01-05",
+      Status: "Completed",
+      RepairCost: 3000,
+      completionDate: "2024-01-10"
+    });
+
+    const response = await request(app).delete(`/repair/${insertedRepair.insertedId}`);
+
+    expect(response.status).toBe(204);
+
+    const deleted = await db.collection("Repair").findOne({ _id: insertedRepair.insertedId });
+    expect(deleted).toBeNull();
+  });
+
 });

@@ -60,4 +60,47 @@ describe("Cars API CRUD Test", () => {
     expect(Array.isArray(response.body)).toBe(true);
   });
 
+  test("PUT /cars/:id → update a car", async () => {
+    const insertedCar = await db.collection("Cars").insertOne({
+      carName: "Corolla",
+      brand: "Toyota",
+      year: "2022",
+      color: "White",
+      price: "85000"
+    });
+
+    const response = await request(app)
+      .put(`/cars/${insertedCar.insertedId}`)
+      .send({
+        carName: "Corolla Hybrid",
+        brand: "Toyota",
+        year: "2023",
+        color: "Blue",
+        price: "90000"
+      });
+
+    expect(response.status).toBe(204);
+
+    const updated = await db.collection("Cars").findOne({ _id: insertedCar.insertedId });
+    expect(updated.carName).toBe("Corolla Hybrid");
+    expect(updated.color).toBe("Blue");
+  });
+
+  test("DELETE /cars/:id → delete a car", async () => {
+    const insertedCar = await db.collection("Cars").insertOne({
+      carName: "Camry",
+      brand: "Toyota",
+      year: "2021",
+      color: "Silver",
+      price: "75000"
+    });
+
+    const response = await request(app).delete(`/cars/${insertedCar.insertedId}`);
+
+    expect(response.status).toBe(204);
+
+    const deleted = await db.collection("Cars").findOne({ _id: insertedCar.insertedId });
+    expect(deleted).toBeNull();
+  });
+
 });
